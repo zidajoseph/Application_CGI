@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1>test！！！！！！！！！！！！！</h1>
+    <% require 'pg' %>
+    <% connection = PG::connect(dbname: "goya") %>
+    <% connection.internal_encoding = "UTF-8" %>
+    <form action="indicate.cgi" method="POST">
+       Veuillez saisir la chaîne <br><br>
+      <input type="text"  name="input" > <br>
+      <input type="submit" name="Send" >
+    </form>
+    <% result = connection.exec("SELECT * FROM crops WHERE give_for != '自家消費';") %>
+    <% data = [] %>
+    <% result.each do |record| %>
+      <%  data << "length：#{record["length"]} weight：#{record["weight"]} quality：#{record["quality"]} give_for：#{record["give_for"]} date：#{record["date"]}" %>
+    <% end %>
+    <form action="goya.cgi" method="POST">
+    Si vous cliquez sur le bouton ci-dessous, vous serez dirigé vers une page d'informations sur Goya, la destination n'est pas destinée à la consommation privée.<br><br>
+      <input type="text" name="goya" value="<%= data.join(' ') %>">
+      <input type="submit" name="submit" >
+    </form>
+    <% result_2 = connection.exec("select weight, give_for, quality from crops where quality = 'f'") %>
+    <% data_2 = [] %>
+    <% result_2.each do |record_2| %>
+      <%  data_2 << "length：#{record_2["length"]} weight：#{record_2["weight"]} quality：#{record_2["quality"]} give_for：#{record_2["give_for"]} date：#{record_2["date"]}" %>
+    <% end %>
+    <form action="goya.cgi" method="POST">
+    Cliquez sur le bouton ci-dessous pour accéder à une page contenant des informations sur les Goya de mauvaise qualité (false).<br><br>
+      <input type="text" name="goya" value="<%= data_2.join(' ') %>">
+      <input type="submit" name="submit" >
+    </form>
+    
+
+  </body>
+</html>
